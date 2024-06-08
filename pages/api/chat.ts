@@ -24,5 +24,15 @@ export default async function handler(
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  response.body.pipe(res);
+  response.body.on("data", (chunk) => {
+    res.write(`data: ${chunk}\n\n`);
+  });
+
+  response.body.on("end", () => {
+    res.end();
+  });
+
+  response.body.on("error", (err) => {
+    res.status(500).send(`Error: ${err.message}`);
+  });
 }
